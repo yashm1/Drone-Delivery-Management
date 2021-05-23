@@ -1,0 +1,109 @@
+<html>
+
+<head>
+    <title>Add Map</title>
+
+    <style type="text/css">
+        /* Set the size of the div element that contains the map */
+        
+        #map {
+            height: 100%;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+    </style>
+    <script>
+        // Initialize and add the map
+
+
+        function initMap() {
+            var options = {
+                center: {
+                    lat: 28.7041,
+                    lng: 77.1025
+                },
+                zoom: 6,
+                mapTypeId: "terrain",
+
+            }
+            var map = new google.maps.Map(document.getElementById("map"), options);
+            // Create the polyline and add the symbol to it via the 'icons' property.
+            var marker = new google.maps.Marker({
+                position: {
+                    lat: 28.7041,
+                    lng: 77.1025
+                },
+                map: map,
+            });
+            var lineSymbol = {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                strokeColor: "#393",
+            };
+            addmarker({
+                coords: {
+                    lat: 29.7041,
+                    lng: 77.1025
+                }
+            });
+            addmarker({
+                coords: {
+                    lat: 29.7141,
+                    lng: 78.1025
+                },
+            });
+
+            function addmarker(props) {
+                var marker = new google.maps.Marker({
+                    position: props.coords,
+                    map: map,
+                });
+            }
+            var line = new google.maps.Polyline({
+                path: [{
+                    lat: 28.7041,
+                    lng: 77.1025
+                }, {
+                    lat: 29.7041,
+                    lng: 77.1025
+                }, {
+                    lat: 29.7141,
+                    lng: 78.1025
+                }, {
+                    lat: 28.7041,
+                    lng: 77.1025
+                }],
+                icons: [{
+                    icon: lineSymbol,
+                    offset: "100%",
+                }, ],
+                map: map,
+            });
+            animateCircle(line);
+        }
+        // Use the DOM setInterval() function to change the offset of the symbol
+        // at fixed intervals.
+        function animateCircle(line) {
+            let count = 0;
+            window.setInterval(() => {
+                count = (count + 1);
+                const icons = line.get("icons");
+                icons[0].offset = count / 2 + "%";
+                line.set("icons", icons);
+            }, 20);
+        }
+    </script>
+</head>
+
+<body>
+    <h3>My Google Maps Demo</h3>
+    <!--The div element for the map -->
+    <div id="map"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFCKn5MZW9k3UCMg6z0EI4hR-IJL-khsw&callback=initMap&libraries=&v=weekly" async></script>
+</body>
+
+
+</html>
