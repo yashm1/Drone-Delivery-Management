@@ -21,15 +21,22 @@ def index(request):
     loc = {}
     coords["lat"]=depot_lat
     coords["long"]=depot_long
-    loc["coordinates"] = coords
+    loc["coordinates"] = coords.copy()
     loc["demand"] = 0
-    input_data['depot']=loc
+    input_data['depot']=loc.copy()
+    all_points = np.array([[coords["lat"],coords["long"]]])
+    print(input_data)
     for order in Order.objects.all():
         coords["lat"]=order.customer.lat
         coords["long"] = order.customer.long
-        loc["coordinates"] = coords
+        loc["coordinates"] = coords.copy()
         loc["demand"]=order.cost
-        input_data['customer {}'.format(order.id)]=loc
+        input_data['customer_{}'.format(order.order_id)]=loc.copy()
+        all_points = np.append(all_points,[[coords["lat"], coords["long"]]],axis=0)
     print(input_data)
+
+    # Calculating distance matrix
+    dist_matrix = squareform(pdist(all_points, metric=haversine))
+    print(dist_matrix)
 
     return HttpResponse(str(input_data))
