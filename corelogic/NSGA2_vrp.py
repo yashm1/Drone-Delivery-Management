@@ -12,7 +12,7 @@ from deap import base, creator, tools, algorithms, benchmarks
 from deap.benchmarks.tools import diversity, convergence, hypervolume
 
 
-BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(_file_)))
+BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 
@@ -401,11 +401,12 @@ class nsgaAlgo(object):
 
     def runMain(self):
         self.generatingPopFitness()
+        print("gen")
         self.runGenerations()
         self.getBestInd()
         self.doExport()
 
-if _name_ == "_main_":
+if __name__ == "_main_":
     print("Running file directly, Executing nsga2vrp")
     # nsga2vrp()
     someinstance = nsgaAlgo()
