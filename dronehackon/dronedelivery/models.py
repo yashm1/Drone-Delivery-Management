@@ -7,11 +7,17 @@ class Drone(models.Model):
     battery = models.IntegerField(default =0)
     weight = models.FloatField(default=0)
 
+    def __str__(self):
+        return self.name
+
 class Customer(models.Model):
     name =  models.CharField(max_length=30)
     address = models.CharField(max_length=200,default="")
     lat = models.FloatField(default=0)
     long = models.FloatField(default =0)
+
+    def __str__(self):
+        return self.name
 
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -19,3 +25,6 @@ class Order(models.Model):
     weight = models.FloatField(default=0)
     cost = models.FloatField(default=0)
     priority = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Order "+ str(self.order_id)
