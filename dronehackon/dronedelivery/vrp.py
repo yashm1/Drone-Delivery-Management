@@ -390,10 +390,19 @@ class nsgaAlgo(object):
         route = routeToSubroute(self.best_individual, self.json_instance)
         route_coords = []
         for subroute in route:
-            subroute_coords = []
+
+            # Starting coords - depot
+            subroute_coords = [
+                [self.json_instance["depot"]["coordinates"]["lat"],
+                self.json_instance["depot"]["coordinates"]["long"]]
+            ]
             for customer_id in subroute:
                 subroute_coords.append([self.json_instance[f"customer_{customer_id}"]["coordinates"]["lat"],
                                         self.json_instance[f"customer_{customer_id}"]["coordinates"]["long"]])
+
+            # Appending last destination - depot
+            subroute_coords.append([self.json_instance["depot"]["coordinates"]["lat"],
+                                    self.json_instance["depot"]["coordinates"]["long"]])
             route_coords.append(subroute_coords[:])
 
         return route_coords

@@ -1,0 +1,115 @@
+<html>
+
+<head>
+    <title>Add Map</title>
+
+    <style type="text/css">
+        /* Set the size of the div element that contains the map */
+
+        #map {
+            height: 100%;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+    </style>
+    <script>
+        // Initialize and add the map
+
+
+        function initMap() {
+            var options = {
+                center: {
+                    lat: {{depot.0}},
+                    lng: {{depot.1}}
+                },
+                zoom: 7,
+                mapTypeId: "terrain",
+
+            }
+            var map = new google.maps.Map(document.getElementById("map"), options);
+            // Create the polyline and add the symbol to it via the 'icons' property.
+            var marker = new google.maps.Marker({
+                position: {
+                    lat: {{depot.0}},
+                    lng: {{depot.1}}
+                },
+                map: map,
+            });
+            marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png')
+            // Drones
+            {% for subroute in route %}
+            var lineSymbol{{ forloop.counter }} = {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                strokeColor: "#000",
+            };
+            {% endfor %}
+            {% for customer in customers %}
+            addmarker({
+                coords: {
+                    lat: {{ customer.0 }},
+                    lng: {{ customer.1 }}
+                }
+            });
+            {% endfor %}
+
+            function addmarker(props) {
+                var marker = new google.maps.Marker({
+                    position: props.coords,
+                    map: map,
+                });
+                marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
+            }
+            {% for subroute,color in route_with_color %}
+            var line{{ forloop.counter }} = new google.maps.Polyline({
+                path: [
+                    {% for order in subroute %}
+                        {% if forloop.last %}
+                            {
+                    lat: {{ order.0 }},
+                    lng: {{ order.1 }}
+                }
+                        {% else %}
+                    {
+                    lat: {{ order.0 }},
+                    lng: {{ order.1 }}
+                },
+                        {% endif %}
+                    {% endfor %}
+                ],
+                icons: [{
+                    icon: lineSymbol{{ forloop.counter }},
+                    offset: "100%",
+                }, ],
+                strokeColor: "{{ color }}",
+                map: map,
+            });
+            animateCircle(line{{ forloop.counter }});
+            {% endfor %}
+        }
+        // Use the DOM setInterval() function to change the offset of the symbol
+        // at fixed intervals.
+        function animateCircle(line) {
+            let count = 0;
+            window.setInterval(() => {
+                count = (count + 1);
+                const icons = line.get("icons");
+                icons[0].offset = count / 2 + "%";
+                line.set("icons", icons);
+            }, 200);
+        }
+    </script>
+</head>
+
+<body>
+    <h3>My Google Maps Demo</h3>
+    <!--The div element for the map -->
+    <div id="map"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFCKn5MZW9k3UCMg6z0EI4hR-IJL-khsw&callback=initMap&libraries=&v=weekly" async></script>
+</body>
+
+
+</html>

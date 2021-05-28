@@ -29,9 +29,11 @@ def index(request):
     input_data['depot']=loc.copy()
     all_points = np.array([[coords["lat"],coords["long"]]])
     # print(input_data)
+    customers = []
     for order in Order.objects.all():
         coords["lat"]=order.customer.lat
         coords["long"] = order.customer.long
+        customers.append([order.customer.lat,order.customer.long])
         loc["coordinates"] = coords.copy()
         loc["demand"]=order.cost
         input_data['customer_{}'.format(order.order_id)]=loc.copy()
@@ -50,10 +52,15 @@ def index(request):
 
     # Running Algorithm
     nsgaObj.runMain()
-    solution = nsgaObj.get_solution()
-
+    route = nsgaObj.get_solution()
+    colorset=["#000000","#0066ff","#cc0000","#009900","#6600cc","#cc00cc","#009999"]
+    route_with_color = zip(route,colorset)
     context ={
-
+        "route": route,
+        "depot": [depot_lat,depot_long],
+        "num_of_drones": len(route),
+        "customers": customers,
+        "route_with_color": route_with_color,
     }
-    # return render(request,'index.html',context = context)
-    return HttpResponse(str(solution))
+    return render(request,'vrp.html',context = context)
+    # return HttpResponse(str(route_with_color))
