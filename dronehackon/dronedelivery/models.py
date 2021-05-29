@@ -5,7 +5,10 @@ class Drone(models.Model):
     name =  models.CharField(max_length=30)
     capacity = models.FloatField(default=0)
     battery = models.IntegerField(default =0)
-    weight = models.FloatField(default=0)
+    weight = models.FloatField(default=10)
+    number = models.IntegerField(default=10)
+    battery_consumption_perKM_perHr = models.FloatField(default = 0.000002)
+    takeoff_landing_consumption = models.FloatField(default=0.01)
 
     def __str__(self):
         return self.name

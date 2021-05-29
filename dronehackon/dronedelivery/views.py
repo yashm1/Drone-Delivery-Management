@@ -11,15 +11,14 @@ from .vrp import *
 
 def index(request):
     n = len(Customer.objects.all())
-    k = 3
-    q = 1500
+    drone = Drone.objects.get(name = "Test drone")
     depot_lat = 10
     depot_long = 11
     input_data={}
     input_data['instance_name'] = "Django integration trial"
     input_data['Number_of_customers'] = n
-    input_data['max_vehicle_number'] = k
-    input_data['vehicle_capacity'] = q
+    input_data['max_vehicle_number'] = drone.number
+    input_data['vehicle_capacity'] = drone.capacity
     coords={}
     loc = {}
     coords["lat"]=depot_lat

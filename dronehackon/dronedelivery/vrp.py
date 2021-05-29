@@ -27,7 +27,8 @@ def load_instance(json_file):
 
 
 # Take a route of given length, divide it into subroute where each subroute is assigned to vehicle
-def routeToSubroute(individual, instance):
+# Take a route of given length, divide it into subroute where each subroute is assigned to vehicle
+def routeToSubroute(individual, instance, drone):
     """
     Inputs: Sequence of customers that a route has
             Loaded instance problem
@@ -36,9 +37,12 @@ def routeToSubroute(individual, instance):
     """
     route = []
     sub_route = []
-    vehicle_load = 0
+    vehicle_load = drone.weight
     last_customer_id = 0
     vehicle_capacity = instance['vehicle_capacity']
+    sub_route_distance = 0
+    distance = 0
+    battery_consumed = 0
 
     for customer_id in individual:
         # print(customer_id)
@@ -46,13 +50,42 @@ def routeToSubroute(individual, instance):
         # print(f"The demand for customer_{customer_id}  is {demand}")
         updated_vehicle_load = vehicle_load + demand
 
-        if (updated_vehicle_load <= vehicle_capacity):
+        weight = drone.weight + demand
+        last_cust_id = 0
+        for cust_id in sub_route:
+            demand_cust = instance[f"customer_{cust_id}"]["demand"]
+            weight += demand_cust
+
+        sub_route_distance = 0
+        for cust_id in sub_route:
+            # Distance from the last customer id to next one in the given subroute
+            distance = instance["distance_matrix"][last_cust_id][cust_id]
+            sub_route_distance += distance * weight
+            # Update last_customer_id to the new one
+            demand_cust = instance[f"customer_{cust_id}"]["demand"]
+            weight -= demand_cust
+            last_cust_id = cust_id
+
+        # After adding distances in subroute, adding the route cost from last customer to depot
+        sub_route_distance = sub_route_distance + instance["distance_matrix"][last_cust_id][customer_id] * weight
+        weight -= demand
+        sub_route_distance = sub_route_distance + instance["distance_matrix"][customer_id][0] * weight
+        # Cost for this particular sub route
+
+        sub_route_transport_cost = drone.battery_consumption_perKM_perHr * sub_route_distance + (
+                    len(sub_route) + 2) * drone.battery_consumption_takeoff_landing
+        # print("hellllllllloooooooooooooo", sub_route_transport_cost)
+
+        if (updated_vehicle_load <= vehicle_capacity and sub_route_transport_cost <= 0.8):
+
             sub_route.append(customer_id)
             vehicle_load = updated_vehicle_load
         else:
             route.append(sub_route)
             sub_route = [customer_id]
-            vehicle_load = demand
+            vehicle_load = demand + drone.weight
+            # distance = instance["distance_matrix"][last_customer_id][customer_id]
+            # sub_route_distance = distance*weight
 
         last_customer_id = customer_id
 
@@ -81,14 +114,14 @@ def printRoute(route, merge=False):
 
 
 # Calculate the number of vehicles required, given a route
-def getNumVehiclesRequired(individual, instance):
+def getNumVehiclesRequired(individual, instance, drone):
     """
     Inputs: Individual route
             Json file object loaded instance
     Outputs: Number of vechiles according to the given problem and the route
     """
     # Get the route with subroutes divided according to demand
-    updated_route = routeToSubroute(individual, instance)
+    updated_route = routeToSubroute(individual, instance,drone)
     num_of_vehicles = len(updated_route)
     return num_of_vehicles
 
@@ -105,7 +138,7 @@ def getRouteCost(individual, instance, drone, unit_cost=1):
         - Total cost for the route taken by all the vehicles
     """
     total_cost = 0
-    updated_route = routeToSubroute(individual, instance)
+    updated_route = routeToSubroute(individual, instance, drone)
 
     for sub_route in updated_route:
         # Initializing the subroute distance to 0
@@ -137,6 +170,7 @@ def getRouteCost(individual, instance, drone, unit_cost=1):
         # Adding this to total cost
         total_cost = total_cost + sub_route_transport_cost
 
+        # print("hellllooooooo", total_cost)
     return total_cost
 
 
@@ -151,7 +185,7 @@ def eval_indvidual_fitness(individual, instance, drone, unit_cost):
 
     # we have to minimize number of vehicles
     # TO calculate req vechicles for given route
-    vehicles = getNumVehiclesRequired(individual, instance)
+    vehicles = getNumVehiclesRequired(individual, instance,drone)
 
     # we also have to minimize route cost for all the vehicles
     route_cost = getRouteCost(individual, instance, drone, unit_cost)
@@ -276,9 +310,9 @@ def exportCsv(csv_file_name, logbook):
 
 class drone():
     def __init__(self):
-        self.weight = 1
-        self.battery_consumption_perKM_perHr = 0.02
-        self.battery_consumption_takeoff_landing = 0.05
+        self.weight = 10
+        self.battery_consumption_perKM_perHr = 0.000002
+        self.battery_consumption_takeoff_landing = 0.01
         self.no_of_drones = 10
 
 
@@ -384,10 +418,10 @@ class nsgaAlgo(object):
               f"{self.best_individual.fitness.values[1]}")
 
         # Printing the route from the best individual
-        printRoute(routeToSubroute(self.best_individual, self.json_instance))
+        printRoute(routeToSubroute(self.best_individual, self.json_instance,self.drone))
 
     def get_solution(self):
-        route = routeToSubroute(self.best_individual, self.json_instance)
+        route = routeToSubroute(self.best_individual, self.json_instance,self.drone)
         route_coords = []
         for subroute in route:
 
