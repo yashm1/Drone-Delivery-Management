@@ -37,6 +37,8 @@
              var infoWindow=new google.maps.InfoWindow({
                 content: 'Lat: '+ {{depot.0}}+' Lng: '+{{depot.1}}
             });
+            {% load static %}
+            const warehouse = "{% static 'img/rsz_warehouse.png' %}";
             var marker = new google.maps.Marker({
                 position: {
                     lat: {{depot.0}},
@@ -44,6 +46,7 @@
                 },
                 
                 map: map,
+                icon: warehouse,
             });
            
             marker.addListener('mouseover',function(){
@@ -52,7 +55,6 @@
             marker.addListener('mouseout', function() {
                 infoWindow.close();
             });
-            marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png')
             // Drones
             {% for subroute in route %}
             var lineSymbol{{ forloop.counter }} = {
@@ -122,7 +124,7 @@
                 const icons = line.get("icons");
                 icons[0].offset = count / 2 + "%";
                 line.set("icons", icons);
-            }, 200);
+            }, 50);
         }
     </script>
 
