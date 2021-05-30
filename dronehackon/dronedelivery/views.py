@@ -81,6 +81,7 @@ def maps(request):
 def index(request):
     drone = Drone.objects.get(name="Test drone")
     depot = Depot.objects.get(name="Test Depot")
+    payload_capacity = drone.capacity - drone.weight
     if request.method == "POST":
         print(request.POST)
         if "update_drone" in request.POST:
@@ -91,6 +92,7 @@ def index(request):
             drone.takeoff_landing_consumption = request.POST.get("takeofflanding")
             drone.number = request.POST.get("number")
             drone.save()
+            payload_capacity = request.POST.get("capacity")
         elif "update_warehouse" in request.POST:
             depot.lat = request.POST.get("lat")
             depot.long = request.POST.get("long")
@@ -98,7 +100,6 @@ def index(request):
 
     depot_lat = depot.lat
     depot_long = depot.long
-    payload_capacity = request.POST.get("capacity")
     return render(request,'index.html',context={
         "drone":drone,
         "payload_capacity": payload_capacity,
