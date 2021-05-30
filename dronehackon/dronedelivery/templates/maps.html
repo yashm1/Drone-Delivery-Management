@@ -34,12 +34,23 @@
             }
             var map = new google.maps.Map(document.getElementById("map"), options);
             // Create the polyline and add the symbol to it via the 'icons' property.
+             var infoWindow=new google.maps.InfoWindow({
+                content: 'Lat: '+ {{depot.0}}+' Lng: '+{{depot.1}}
+            });
             var marker = new google.maps.Marker({
                 position: {
                     lat: {{depot.0}},
                     lng: {{depot.1}}
                 },
+                
                 map: map,
+            });
+           
+            marker.addListener('mouseover',function(){
+                    infoWindow.open(map,marker);
+            });
+            marker.addListener('mouseout', function() {
+                infoWindow.close();
             });
             marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png')
             // Drones
@@ -64,6 +75,15 @@
                     position: props.coords,
                     map: map,
                 });
+                 var infoWindow=new google.maps.InfoWindow({
+                        content: 'Lat: '+(props.coords.lat)+' Lng: '+(props.coords.lng)
+                    });
+                    marker.addListener('mouseover',function(){
+                            infoWindow.open(map,marker);
+                    });
+                    marker.addListener('mouseout', function() {
+                        infoWindow.close();
+                    });
                 marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
             }
             {% for subroute,color in route_with_color %}
