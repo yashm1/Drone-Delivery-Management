@@ -35,10 +35,10 @@ def maps(request):
         coords["long"] = order.customer.long
         customers.append([order.customer.lat,order.customer.long])
         loc["coordinates"] = coords.copy()
-        loc["demand"]=order.cost
+        loc["demand"]=order.weight
         input_data['customer_{}'.format(order.order_id)]=loc.copy()
         all_points = np.append(all_points,[[coords["lat"], coords["long"]]],axis=0)
-    # print(input_data)
+    print(input_data)
 
     # Calculating distance matrix
     dist_matrix = squareform(pdist(all_points, metric=haversine))
@@ -86,7 +86,7 @@ def index(request):
         if "update_drone" in request.POST:
             drone.battery = request.POST.get("battery")
             drone.weight = request.POST.get("weight")
-            drone.capacity = request.POST.get("capacity")
+            drone.capacity = float(request.POST.get("capacity"))+float(drone.weight)
             drone.battery_consumption_perKM_perKg = request.POST.get("battery_consumption")
             drone.takeoff_landing_consumption = request.POST.get("takeofflanding")
             drone.number = request.POST.get("number")
@@ -98,8 +98,10 @@ def index(request):
 
     depot_lat = depot.lat
     depot_long = depot.long
+    payload_capacity = request.POST.get("capacity")
     return render(request,'index.html',context={
         "drone":drone,
+        "payload_capacity": payload_capacity,
         "depot_lat":depot_lat,
         "depot_long":depot_long,
     })
