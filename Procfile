@@ -1,1 +1,1 @@
-web: gunicorn dronehackon.wsgi
+web: gunicorn dronehackon/dronehackon.wsgi
