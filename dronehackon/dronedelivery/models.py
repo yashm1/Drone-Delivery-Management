@@ -7,7 +7,7 @@ class Drone(models.Model):
     battery = models.IntegerField(default =0)
     weight = models.FloatField(default=10)
     number = models.IntegerField(default=10)
-    battery_consumption_perKM_perHr = models.FloatField(default = 0.000002)
+    battery_consumption_perKM_perKg = models.FloatField(default = 0.000002)
     takeoff_landing_consumption = models.FloatField(default=0.01)
 
     def __str__(self):
@@ -31,3 +31,12 @@ class Order(models.Model):
 
     def __str__(self):
         return "Order "+ str(self.order_id)
+
+class Depot(models.Model):
+    name = models.CharField(max_length=40)
+    address = models.CharField(max_length=200, default="")
+    lat = models.FloatField(default=0)
+    long = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.name
