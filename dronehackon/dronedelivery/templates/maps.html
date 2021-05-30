@@ -1,29 +1,34 @@
+<!DOCTYPE html>
 <html>
 
 <head>
-    <title>Add Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Maps - DroneCC</title>
+    {% include 'css.html' %}
+</head>
+<style type="text/css">
+    /* Set the size of the div element that contains the map */
 
-    <style type="text/css">
-        /* Set the size of the div element that contains the map */
-        
-        #map {
-            height: 100%;
-            /* The height is 400 pixels */
-            width: 100%;
-            /* The width is the width of the web page */
-        }
-    </style>
-    <script>
+    #map {
+        height: 100%;
+        margin: 200px 20px 20px 20px;
+        /* The height is 400 pixels */
+        width: 97%;
+        /* The width is the width of the web page */
+    }
+</style>
+<script>
         // Initialize and add the map
 
 
         function initMap() {
             var options = {
                 center: {
-                    lat: 28.7041,
-                    lng: 77.1025
+                    lat: {{depot.0}},
+                    lng: {{depot.1}}
                 },
-                zoom: 6,
+                zoom: 7,
                 mapTypeId: "terrain",
 
             }
@@ -31,79 +36,255 @@
             // Create the polyline and add the symbol to it via the 'icons' property.
             var marker = new google.maps.Marker({
                 position: {
-                    lat: 28.7041,
-                    lng: 77.1025
+                    lat: {{depot.0}},
+                    lng: {{depot.1}}
                 },
                 map: map,
             });
-            var lineSymbol = {
+            marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png')
+            // Drones
+            {% for subroute in route %}
+            var lineSymbol{{ forloop.counter }} = {
                 path: google.maps.SymbolPath.CIRCLE,
                 scale: 8,
-                strokeColor: "#393",
+                strokeColor: "#000",
             };
+            {% endfor %}
+            {% for customer in customers %}
             addmarker({
                 coords: {
-                    lat: 29.7041,
-                    lng: 77.1025
+                    lat: {{ customer.0 }},
+                    lng: {{ customer.1 }}
                 }
             });
-            addmarker({
-                coords: {
-                    lat: 29.7141,
-                    lng: 78.1025
-                },
-            });
+            {% endfor %}
 
             function addmarker(props) {
                 var marker = new google.maps.Marker({
                     position: props.coords,
                     map: map,
                 });
+                marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
             }
-            var line = new google.maps.Polyline({
-                path: [{
-                    lat: 28.7041,
-                    lng: 77.1025
-                }, {
-                    lat: 29.7041,
-                    lng: 77.1025
-                }, {
-                    lat: 29.7141,
-                    lng: 78.1025
-                }, {
-                    lat: 28.7041,
-                    lng: 77.1025
-                }],
+            {% for subroute,color in route_with_color %}
+            var line{{ forloop.counter }} = new google.maps.Polyline({
+                path: [
+                    {% for order in subroute %}
+                        {% if forloop.last %}
+                            {
+                    lat: {{ order.0 }},
+                    lng: {{ order.1 }}
+                }
+                        {% else %}
+                    {
+                    lat: {{ order.0 }},
+                    lng: {{ order.1 }}
+                },
+                        {% endif %}
+                    {% endfor %}
+                ],
                 icons: [{
-                    icon: lineSymbol,
+                    icon: lineSymbol{{ forloop.counter }},
                     offset: "100%",
                 }, ],
+                strokeColor: "{{ color }}",
                 map: map,
             });
-            animateCircle(line);
+            animateCircle(line{{ forloop.counter }});
+            {% endfor %}
         }
         // Use the DOM setInterval() function to change the offset of the symbol
         // at fixed intervals.
         function animateCircle(line) {
             let count = 0;
             window.setInterval(() => {
-                count = (count + 1) % 200;
+                count = (count + 1);
                 const icons = line.get("icons");
                 icons[0].offset = count / 2 + "%";
                 line.set("icons", icons);
-            }, 20);
+            }, 200);
         }
     </script>
-</head>
 
-<body>
-    <h3>My Google Maps Demo</h3>
-    <!--The div element for the map -->
-    <div id="map"></div>
+<body id="page-top">
+    <div id="wrapper">
 
-    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFCKn5MZW9k3UCMg6z0EI4hR-IJL-khsw&callback=initMap&libraries=&v=weekly" async></script>
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>FlipFlops</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'warehouse' %}"><i class="fas fa-user"></i><span>Profile</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'orders' %}"><i class="fas fa-table"></i><span>Orders</span></a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'maps' %}"><i class="far fa-user-circle"></i>Maps</a></li>
+                    <li class="nav-item"></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                            <div class="input-group"><input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
+                                <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                            </div>
+                        </form>
+                        <ul class="navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><i class="fas fa-search"></i></a>
+                                <div class="dropdown-menu dropdown-menu-right p-3 animated--grow-in" aria-labelledby="searchDropdown">
+                                    <form class="form-inline mr-auto navbar-search w-100">
+                                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
+                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown no-arrow mx-1">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><span class="badge badge-danger badge-counter">3+</span><i class="fas fa-bell fa-fw"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in">
+                                        <h6 class="dropdown-header">alerts center</h6>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="mr-3">
+                                                <div class="bg-primary icon-circle"><i class="fas fa-file-alt text-white"></i></div>
+                                            </div>
+                                            <div><span class="small text-gray-500">December 12, 2019</span>
+                                                <p>A new monthly report is ready to download!</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="mr-3">
+                                                <div class="bg-success icon-circle"><i class="fas fa-donate text-white"></i></div>
+                                            </div>
+                                            <div><span class="small text-gray-500">December 7, 2019</span>
+                                                <p>$290.29 has been deposited into your account!</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="mr-3">
+                                                <div class="bg-warning icon-circle"><i class="fas fa-exclamation-triangle text-white"></i></div>
+                                            </div>
+                                            <div><span class="small text-gray-500">December 2, 2019</span>
+                                                <p>Spending Alert: We've noticed unusually high spending for your account.</p>
+                                            </div>
+                                        </a><a class="text-center dropdown-item small text-gray-500" href="#">Show All Alerts</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown no-arrow mx-1">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><i class="fas fa-envelope fa-fw"></i><span class="badge badge-danger badge-counter">7</span></a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in">
+                                        <h6 class="dropdown-header">alerts center</h6>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar4.jpeg">
+                                                <div class="bg-success status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>Hi there! I am wondering if you can help me with a problem I've been having.</span></div>
+                                                <p class="small text-gray-500 mb-0">Emily Fowler - 58m</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar2.jpeg">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>I have the photos that you ordered last month!</span></div>
+                                                <p class="small text-gray-500 mb-0">Jae Chun - 1d</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar3.jpeg">
+                                                <div class="bg-warning status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>Last month's report looks great, I am very happy with the progress so far, keep up the good work!</span></div>
+                                                <p class="small text-gray-500 mb-0">Morgan Alvarez - 2d</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar5.jpeg">
+                                                <div class="bg-success status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>Am I a good boy? The reason I ask is because someone told me that people say this to all dogs, even if they aren't good...</span></div>
+                                                <p class="small text-gray-500 mb-0">Chicken the Dog · 2w</p>
+                                            </div>
+                                        </a><a class="text-center dropdown-item small text-gray-500" href="#">Show All Alerts</a>
+                                    </div>
+                                </div>
+                                <div class="shadow dropdown-list dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown"></div>
+                            </li>
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">Amazon Warehouse</span><img class="border rounded-circle img-profile" src="assets/img/avatars/2560px-Amazon_logo.svg.png"></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in"><a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Profile</a><a class="dropdown-item" href="#"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
+                                        <a class="dropdown-item" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activity log</a>
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                    <div class="row">
+                        <div class="col" style="flex-grow: 0"><input class="btn btn-primary btn-sm d-sm-inline-block" value="Recalculate Routes" role="button" name="calculation" type="submit" style="margin: 0 10px 10px 10px;"></div>
+                        <div class="col" style="flex-grow: 0"><input class="btn btn-primary btn-sm d-sm-inline-block" value="Play Animation" role="button" name="animation" type="submit" style="margin: 0 10px 10px 10px;"></div>
+                    </div>
+                    </form>
+                    <!-- <div class="row">
+                        <div class="col-md-6 col-xl-3 mb-4">
+                            <div class="card shadow border-left-primary py-2" style="border-color: var(--blue);border-left-color: var(--blue);">
+                                <div class="card-body">
+                                    <div class="row align-items-center no-gutters">
+                                        <div class="col mr-2">
+                                            <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span>Battery Capacity</span></div>
+                                        </div>
+                                        <div class="col-11"><input type="text" placeholder="1000"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3 mb-4">
+                            <div class="card shadow border-left-primary py-2" style="color: var(--dark);border-color: var(--blue);border-left-color: var(--cyan);filter: hue-rotate(261deg);">
+                                <div class="card-body">
+                                    <div class="row align-items-center no-gutters">
+                                        <div class="col mr-2">
+                                            <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span>Weight</span></div>
+                                        </div>
+                                        <div class="col-11"><input type="text" placeholder="200"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                    <!-- <div class="row">
+                        <div class="col"><a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" style="padding: 121 211 211 210;padding-right: 21;padding-top: 21;padding-bottom: 21;padding-left: 21;margin: 11px 11px;margin-top: 0px;margin-bottom: 20px;">Update Details</a></div>
+                    </div> -->
+
+
+
+                </div>
+            </div>
+            <div id="map" style="margin: 20px 20px 20px 20px;"></div>
+            <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFCKn5MZW9k3UCMg6z0EI4hR-IJL-khsw&callback=initMap&libraries=&v=weekly" async></script>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>FlipFlops © Brand 2021</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    {% include 'js.html' %}
 </body>
-
 
 </html>

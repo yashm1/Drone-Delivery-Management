@@ -57,8 +57,15 @@ def maps(request):
     print(nsgaObj.json_instance)
 
     # Running Algorithm
-    nsgaObj.runMain()
-    route = nsgaObj.get_solution()
+    route=[]
+    if request.method == "POST":
+        if "calculation" in request.POST:
+            nsgaObj.runMain()
+            route = nsgaObj.get_solution()
+            request.session['route'] = route
+            request.session.modified = True
+        elif "animation" in request.POST:
+            route = request.session['route']
     colorset=["#000000","#0066ff","#cc0000","#009900","#6600cc","#cc00cc","#009999"]
     route_with_color = zip(route,colorset)
     context ={
@@ -68,7 +75,7 @@ def maps(request):
         "customers": customers,
         "route_with_color": route_with_color,
     }
-    return render(request,'vrp.html',context = context)
+    return render(request,'maps.html',context = context)
     # return HttpResponse(str(route_with_color))
 
 def index(request):
