@@ -325,7 +325,7 @@ class nsgaAlgo(object):
         self.pop_size = 400
         self.cross_prob = 0.85
         self.mut_prob = 0.02
-        self.num_gen = 150
+        self.num_gen = 50
         self.toolbox = base.Toolbox()
         self.logbook, self.stats = createStatsObjs()
         self.drone = drone(drone_params)
