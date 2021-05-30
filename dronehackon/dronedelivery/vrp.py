@@ -309,16 +309,16 @@ def exportCsv(csv_file_name, logbook):
 
 
 class drone():
-    def __init__(self):
-        self.weight = 10
-        self.battery_consumption_perKM_perHr = 0.000002
-        self.battery_consumption_takeoff_landing = 0.01
-        self.no_of_drones = 10
+    def __init__(self,drone_params):
+        self.weight = drone_params['weight']
+        self.battery_consumption_perKM_perHr = drone_params['bat_consum_perkm_perkg']
+        self.battery_consumption_takeoff_landing = drone_params['takeoff_landing']
+        self.no_of_drones = drone_params['number']
 
 
 class nsgaAlgo(object):
 
-    def __init__(self,json_data):
+    def __init__(self,json_data,drone_params):
         print("initialised")
         self.json_instance = json_data
         self.ind_size = self.json_instance['Number_of_customers']
@@ -328,7 +328,7 @@ class nsgaAlgo(object):
         self.num_gen = 150
         self.toolbox = base.Toolbox()
         self.logbook, self.stats = createStatsObjs()
-        self.drone = drone()
+        self.drone = drone(drone_params)
         self.createCreators()
 
     def createCreators(self):
