@@ -41,7 +41,7 @@ python manage.py createsuperuser
 ```
 python manage.py runserver
 ```
-
+* [Deployment on Heroku](https://enigmatic-inlet-90208.herokuapp.com/)
 ## Contributors
 * [Yash Mantri](https://github.com/yashm1)
 * [Vishwesh Pillai](https://github.com/theViz343)
