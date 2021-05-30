@@ -137,6 +137,8 @@
                                         <tr>
                                             <th>Order ID</th>
                                             <th>Customer</th>
+                                            <th>Latitude</th>
+                                            <th>Longitude</th>
                                             <th>Weight (in kgs)</th>
                                             <th>Cost (in Rs.)</th>
                                         </tr>
@@ -146,6 +148,8 @@
                                         <tr>
                                             <td>{{ order.order_id }}</td>
                                             <td>{{ order.customer.name }}</td>
+                                            <td>{{ order.customer.lat }}</td>
+                                            <td>{{ order.customer.long }}</td>
                                             <td>{{ order.weight }}</td>
                                             <td>{{ order.cost }}</td>
                                         </tr>
