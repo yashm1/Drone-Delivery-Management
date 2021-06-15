@@ -16,6 +16,9 @@ Therefore, the next big step in delivery services is drone-based delivery. A maj
 3. Managing multi-packet deliveries constraint to payload capacity and battery capacity of drones.
 4. ***Optimized D’Andrea equation*** for battery consumption of drones which considers various factors such as payload, air resistance, battery cost, life cycle, and cost of electricity usage.
 
+## Results
+![Simulation](results/drone_animation.gif)
+
 ## To run this project on your machine:
 
 1. Create a virtual environment somewhere in your project directory and activate it.
@@ -41,7 +44,7 @@ python manage.py createsuperuser
 ```
 python manage.py runserver
 ```
-* [Deployment on Heroku](https://enigmatic-inlet-90208.herokuapp.com/)
+<a href="https://enigmatic-inlet-90208.herokuapp.com/" target="_blank">Heroku Deployment</a>
 ## Contributors
 * [Yash Mantri](https://github.com/yashm1)
 * [Vishwesh Pillai](https://github.com/theViz343)
